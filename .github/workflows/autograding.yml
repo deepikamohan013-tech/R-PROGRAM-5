@@ -1,0 +1,37 @@
+name: Assignment 5 Autograding
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  autograding:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup MySQL
+        uses: shogo82148/actions-setup-mysql@v1
+        with:
+          distribution: mysql
+          mysql-version: '8.0'
+          root-password: root
+
+      - name: Check MySQL
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "SELECT VERSION();"
+
+      - name: Create Database and Student Table
+        run: |
+          mysql -h 127.0.0.1 -u root -proot < starter.sql
+
+      - name: Run Student Answer
+        run: |
+          mysql -h 127.0.0.1 -u root -proot < answers.sql
+
+      - name: Run Test Cases
+        run: |
+          chmod +x test.sh
+          ./test.sh
